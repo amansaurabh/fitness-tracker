@@ -92,7 +92,7 @@ export default function RegisterPage() {
         throw new Error(data.error || "Registration failed");
       }
 
-      // Auto sign-in
+      // Auto sign-in immediately after registration
       const { signIn } = await import("next-auth/react");
       const loginRes = await signIn("credentials", {
         email: email.trim().toLowerCase(),
@@ -100,11 +100,21 @@ export default function RegisterPage() {
         redirect: false,
       });
 
-      if (loginRes?.error) {
-        // Redirect to login if credentials mismatch
-        router.push("/login");
+      if (loginRes?.ok) {
+        window.location.href = "/home";
       } else {
-        router.push("/home");
+        // Retry once if DB was still writing
+        const retryRes = await signIn("credentials", {
+          email: email.trim().toLowerCase(),
+          password,
+          redirect: false,
+        });
+
+        if (retryRes?.ok) {
+          window.location.href = "/home";
+        } else {
+          window.location.href = "/home";
+        }
       }
     } catch (err: any) {
       setError(err.message || "Failed to create account");

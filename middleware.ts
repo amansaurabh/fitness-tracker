@@ -3,9 +3,16 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: NextRequest) {
+  const secret =
+    process.env.NEXTAUTH_SECRET || "development-secret-key-32chars-minimum-key";
+
+  const isSecure = req.cookies.has("__Secure-next-auth.session-token");
   const token = await getToken({
     req,
-    secret: process.env.NEXTAUTH_SECRET,
+    secret,
+    cookieName: isSecure
+      ? "__Secure-next-auth.session-token"
+      : "next-auth.session-token",
   });
 
   const { pathname } = req.nextUrl;

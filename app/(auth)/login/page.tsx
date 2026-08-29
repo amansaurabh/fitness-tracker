@@ -29,12 +29,12 @@ export default function LoginPage() {
 
       if (res?.error) {
         setError("Invalid email or password");
+        setLoading(false);
       } else {
-        router.push("/home");
+        window.location.href = "/home";
       }
     } catch (err) {
       setError("An error occurred during sign in");
-    } finally {
       setLoading(false);
     }
   };
