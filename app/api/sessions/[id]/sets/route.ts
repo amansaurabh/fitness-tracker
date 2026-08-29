@@ -240,7 +240,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(req.url, "http://localhost");
     const setId = searchParams.get("setId");
     const exerciseName = searchParams.get("exerciseName");
 
