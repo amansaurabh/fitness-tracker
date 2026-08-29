@@ -75,7 +75,53 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json(session, { status: 201 });
+    // Query previous performance for each exercise in this workout to enable progressive overload
+    const previousPerformance: Record<
+      string,
+      { weightKg: number; reps: number; setNumber: number }[]
+    > = {};
+
+    for (const ex of schedule.exercises) {
+      const latestSet = await db.setLog.findFirst({
+        where: {
+          session: {
+            userId: user.id,
+            id: { not: session.id },
+          },
+          exerciseName: {
+            equals: ex.exerciseName.trim(),
+            mode: "insensitive",
+          },
+        },
+        orderBy: { loggedAt: "desc" },
+      });
+
+      if (latestSet) {
+        const sessionSets = await db.setLog.findMany({
+          where: {
+            sessionId: latestSet.sessionId,
+            exerciseName: {
+              equals: ex.exerciseName.trim(),
+              mode: "insensitive",
+            },
+          },
+          orderBy: { setNumber: "asc" },
+        });
+
+        previousPerformance[ex.exerciseName.trim().toLowerCase()] = sessionSets.map(
+          (s) => ({
+            weightKg: Number(s.weightKg),
+            reps: s.reps,
+            setNumber: s.setNumber,
+          })
+        );
+      }
+    }
+
+    return NextResponse.json(
+      { ...session, previousPerformance },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("POST /api/sessions error:", error);
     return NextResponse.json({ error: "Failed to start session" }, { status: 500 });

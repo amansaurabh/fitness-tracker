@@ -93,6 +93,9 @@ model CardioLog {
   userId          String   @map("user_id")
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   durationMinutes Int      @default(15) @map("duration_minutes")
+  caloriesBurned  Int?     @map("calories_burned")
+  inclinePct      Decimal? @map("incline_pct")
+  speedKmh        Decimal? @map("speed_kmh")
   loggedAt        DateTime @default(now()) @map("logged_at")
 
   @@map("cardio_logs")

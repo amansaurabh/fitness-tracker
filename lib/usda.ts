@@ -46,7 +46,7 @@ export async function searchUsdaFoods(query: string): Promise<FoodNutrientsPer10
   try {
     const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&query=${encodeURIComponent(
       trimmed
-    )}&pageSize=10&dataType=Survey (FNDDS),Foundation,Branded`;
+    )}&pageSize=12&dataType=Foundation,SR Legacy,Survey (FNDDS)`;
 
     const res = await fetch(url, {
       next: { revalidate: 3600 }, // Cache on server for 1 hour

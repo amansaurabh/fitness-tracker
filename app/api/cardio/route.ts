@@ -33,11 +33,17 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const durationMinutes = Number(body.durationMinutes) || 15;
+    const caloriesBurned = body.caloriesBurned ? Number(body.caloriesBurned) : null;
+    const inclinePct = body.inclinePct !== undefined ? Number(body.inclinePct) : null;
+    const speedKmh = body.speedKmh !== undefined ? Number(body.speedKmh) : null;
 
     const log = await db.cardioLog.create({
       data: {
         userId: user.id,
         durationMinutes,
+        caloriesBurned,
+        inclinePct,
+        speedKmh,
         loggedAt: new Date(),
       },
     });

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/current-user";
 import { searchUsdaFoods, FoodNutrientsPer100g } from "@/lib/usda";
+import { searchFatSecretFoods } from "@/lib/fatsecret";
 
 export const dynamic = "force-dynamic";
 
@@ -41,16 +42,27 @@ export async function GET(req: Request) {
       source: "custom",
     }));
 
-    // 2. Query USDA FoodData Central server-side
-    const usdaResults = await searchUsdaFoods(query);
+    // 2. Query USDA FoodData Central (Foundation & SR Legacy) as Primary
+    let externalResults = await searchUsdaFoods(query);
 
-    // Combine results: custom foods first, followed by USDA results (deduplicating by name if identical)
+    // If USDA returns few/no results and FatSecret is configured, query FatSecret
+    if (externalResults.length < 3 && process.env.FATSECRET_CLIENT_ID && process.env.FATSECRET_CLIENT_SECRET) {
+      const fatSecretResults = await searchFatSecretFoods(query);
+      const existingNames = new Set(externalResults.map((e) => e.name.toLowerCase()));
+      for (const fsItem of fatSecretResults) {
+        if (!existingNames.has(fsItem.name.toLowerCase())) {
+          externalResults.push(fsItem);
+        }
+      }
+    }
+
+    // Combine results: custom foods first, followed by external results (deduplicating by name if identical)
     const seen = new Set(customResults.map((r) => r.name.toLowerCase()));
-    const filteredUsda = usdaResults.filter(
+    const filteredExternal = externalResults.filter(
       (r) => !seen.has(r.name.toLowerCase())
     );
 
-    return NextResponse.json([...customResults, ...filteredUsda]);
+    return NextResponse.json([...customResults, ...filteredExternal]);
   } catch (error) {
     console.error("GET /api/foods/search error:", error);
     return NextResponse.json({ error: "Failed to search foods" }, { status: 500 });

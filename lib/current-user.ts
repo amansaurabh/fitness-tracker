@@ -7,12 +7,17 @@ export async function getCurrentUser() {
     const session = await getServerSession(authOptions);
     if (session?.user?.email) {
       const user = await db.user.findUnique({
-        where: { email: session.user.email },
+        where: { email: session.user.email.toLowerCase() },
       });
       if (user) return user;
     }
   } catch (e) {
-    // Continue to fallback
+    // Continue
+  }
+
+  // Only allow demo user fallback if explicitly enabled in environment
+  if (process.env.DEMO_MODE !== "true") {
+    return null;
   }
 
   // Single-user / local demo default user

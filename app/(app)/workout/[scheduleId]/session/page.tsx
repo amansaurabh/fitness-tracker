@@ -91,17 +91,38 @@ export default function ActiveSessionPage({
           const data = await res.json();
           setSession(data);
 
+          const prevPerf: Record<
+            string,
+            { weightKg: number; reps: number; setNumber: number }[]
+          > = data.previousPerformance || {};
+
           const initialExercises: ExerciseSessionState[] = (
             data.schedule?.exercises || []
           ).map((ex: any) => {
+            const exKey = ex.exerciseName.trim().toLowerCase();
+            const prevSets = prevPerf[exKey] || [];
+
+            let lastTimeSummary: string | undefined = undefined;
+            if (prevSets.length > 0) {
+              const bestSet = [...prevSets].sort(
+                (a, b) => b.weightKg - a.weightKg || b.reps - a.reps
+              )[0];
+              lastTimeSummary = `Last: ${bestSet.weightKg}kg × ${bestSet.reps}`;
+            }
+
+            const plannedSetsCount = Math.max(ex.targetSets || 3, prevSets.length);
             const plannedSets: SetLogRow[] = Array.from(
-              { length: ex.targetSets || 3 },
-              (_, i) => ({
-                setNumber: i + 1,
-                weightKg: "",
-                reps: "",
-                completed: false,
-              })
+              { length: plannedSetsCount },
+              (_, i) => {
+                const matchingPrevSet =
+                  prevSets.find((s) => s.setNumber === i + 1) || prevSets[i];
+                return {
+                  setNumber: i + 1,
+                  weightKg: matchingPrevSet ? String(matchingPrevSet.weightKg) : "",
+                  reps: matchingPrevSet ? String(matchingPrevSet.reps) : "",
+                  completed: false,
+                };
+              }
             );
 
             return {
@@ -109,7 +130,7 @@ export default function ActiveSessionPage({
               targetSets: ex.targetSets,
               targetReps: ex.targetReps,
               notes: ex.notes,
-              lastTimeText: null,
+              lastTimeText: lastTimeSummary,
               sets: plannedSets,
             };
           });
@@ -151,14 +172,61 @@ export default function ActiveSessionPage({
     setExercises((prev) => {
       const updated = [...prev];
       const nextNum = updated[exIdx].sets.length + 1;
+      const prevSet = updated[exIdx].sets[updated[exIdx].sets.length - 1];
       updated[exIdx].sets.push({
         setNumber: nextNum,
-        weightKg: "",
-        reps: "",
+        weightKg: prevSet ? prevSet.weightKg : "",
+        reps: prevSet ? prevSet.reps : "",
         completed: false,
       });
       return updated;
     });
+  };
+
+  const handleDeleteSet = async (exIdx: number, setIdx: number) => {
+    const targetSet = exercises[exIdx]?.sets[setIdx];
+    if (!targetSet) return;
+
+    if (targetSet.id && session?.id) {
+      try {
+        await fetch(`/api/sessions/${session.id}/sets?setId=${targetSet.id}`, {
+          method: "DELETE",
+        });
+      } catch (err) {
+        console.error("Failed to delete set from backend:", err);
+      }
+    }
+
+    setExercises((prev) => {
+      const updated = [...prev];
+      const currentSets = updated[exIdx].sets.filter((_, i) => i !== setIdx);
+      // Re-index set numbers
+      updated[exIdx].sets = currentSets.map((s, idx) => ({
+        ...s,
+        setNumber: idx + 1,
+      }));
+      return updated;
+    });
+  };
+
+  const handleRemoveExercise = async (exIdx: number) => {
+    const targetEx = exercises[exIdx];
+    if (!targetEx) return;
+
+    if (session?.id) {
+      try {
+        await fetch(
+          `/api/sessions/${session.id}/sets?exerciseName=${encodeURIComponent(
+            targetEx.exerciseName
+          )}`,
+          { method: "DELETE" }
+        );
+      } catch (err) {
+        console.error("Failed to remove exercise sets:", err);
+      }
+    }
+
+    setExercises((prev) => prev.filter((_, i) => i !== exIdx));
   };
 
   const handleAddNewExerciseToSession = (e: React.FormEvent) => {
@@ -216,11 +284,18 @@ export default function ActiveSessionPage({
 
         setExercises((prev) => {
           const updated = [...prev];
+          if (data.isPr) {
+            // Only highest set retains PR
+            updated[exIdx].sets.forEach((s, i) => {
+              if (i !== setIdx) s.isPr = false;
+            });
+          }
+          updated[exIdx].sets[setIdx].id = data.set?.id;
           updated[exIdx].sets[setIdx].completed = true;
           updated[exIdx].sets[setIdx].isPr = data.isPr;
           if (data.lastTimeReference?.sets?.length) {
             const firstPrior = data.lastTimeReference.sets[0];
-            updated[exIdx].lastTimeText = `Last time: ${firstPrior.weightKg}kg × ${firstPrior.reps}`;
+            updated[exIdx].lastTimeText = `Last: ${firstPrior.weightKg}kg × ${firstPrior.reps}`;
           }
           return updated;
         });
@@ -404,17 +479,27 @@ export default function ActiveSessionPage({
             className="bg-surface border border-border rounded-card-md p-4 relative shadow-sm"
           >
             <div className="flex justify-between items-start mb-2">
-              <div>
-                <h3 className="font-space text-base font-bold text-text">
-                  {ex.exerciseName}
-                </h3>
+              <div className="flex-1 mr-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-space text-base font-bold text-text">
+                    {ex.exerciseName}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveExercise(exIdx)}
+                    className="text-text-dimmer hover:text-coral p-1 rounded transition-colors"
+                    title="Remove movement from session"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
                 <div className="text-[11px] text-text-dim mt-0.5">
                   Target: {ex.targetSets} sets · {ex.targetReps} reps
                 </div>
               </div>
 
               {ex.lastTimeText && (
-                <span className="text-[10px] font-mono text-text-dim bg-white/[0.03] px-2 py-0.5 rounded border border-white/5">
+                <span className="text-[10px] font-mono font-medium text-lime bg-lime/10 px-2 py-0.5 rounded border border-lime/25 shadow-glowLime/20 whitespace-nowrap">
                   {ex.lastTimeText}
                 </span>
               )}
@@ -425,8 +510,9 @@ export default function ActiveSessionPage({
               <div className="grid grid-cols-12 gap-1.5 text-[10px] text-text-dimmer uppercase tracking-wider font-mono px-1">
                 <span className="col-span-2 text-center">Set</span>
                 <span className="col-span-4 text-center">kg</span>
-                <span className="col-span-4 text-center">Reps</span>
+                <span className="col-span-3 text-center">Reps</span>
                 <span className="col-span-2 text-center">Log</span>
+                <span className="col-span-1 text-center"></span>
               </div>
 
               {ex.sets.map((set, setIdx) => (
@@ -461,7 +547,7 @@ export default function ActiveSessionPage({
                     onChange={(e) =>
                       handleSetChange(exIdx, setIdx, "reps", e.target.value)
                     }
-                    className="col-span-4 bg-surface border border-border rounded py-1 px-1.5 text-center font-mono text-xs text-text focus:outline-none focus:border-lime disabled:opacity-80"
+                    className="col-span-3 bg-surface border border-border rounded py-1 px-1.5 text-center font-mono text-xs text-text focus:outline-none focus:border-lime disabled:opacity-80"
                   />
 
                   <div className="col-span-2 flex justify-center">
@@ -481,6 +567,17 @@ export default function ActiveSessionPage({
                       ) : (
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                       )}
+                    </button>
+                  </div>
+
+                  <div className="col-span-1 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteSet(exIdx, setIdx)}
+                      className="p-1 text-text-dimmer hover:text-coral rounded transition-colors"
+                      title="Delete set"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
