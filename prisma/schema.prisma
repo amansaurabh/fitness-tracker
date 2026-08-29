@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  name           String?
+  password       String?
+  heightCm       Decimal? @map("height_cm")
+  targetWeightKg Decimal? @map("target_weight_kg")
+  gymDaysPerWeek Int?     @map("gym_days_per_week")
+  workoutMinutes Int?     @map("workout_minutes")
+  cardioMinutes  Int?     @map("cardio_minutes")
+  primaryGoal    String?  @map("primary_goal")
+  createdAt      DateTime @default(now())
+
+  schedules    WorkoutSchedule[]
+  sessions     WorkoutSession[]
+  cardioLogs   CardioLog[]
+  dietPlans    DietPlan[]
+  foodLogs     FoodLog[]
+  customFoods  CustomFood[]
+  weightLogs   BodyWeightLog[]
+  measurements BodyMeasurement[]
+
+  @@map("users")
+}
+
+model WorkoutSchedule {
+  id        String @id @default(uuid())
+  userId    String @map("user_id")
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  sortOrder Int    @default(0) @map("sort_order")
+
+  exercises ScheduleExercise[]
+  sessions  WorkoutSession[]
+
+  @@map("workout_schedules")
+}
+
+model ScheduleExercise {
+  id           String          @id @default(uuid())
+  scheduleId   String          @map("schedule_id")
+  schedule     WorkoutSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  exerciseName String          @map("exercise_name")
+  targetSets   Int             @map("target_sets")
+  targetReps   String          @map("target_reps")
+  notes        String?
+  sortOrder    Int             @default(0) @map("sort_order")
+
+  @@map("schedule_exercises")
+}
+
+model WorkoutSession {
+  id         String          @id @default(uuid())
+  userId     String          @map("user_id")
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheduleId String          @map("schedule_id")
+  schedule   WorkoutSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  startedAt  DateTime        @default(now()) @map("started_at")
+  endedAt    DateTime?       @map("ended_at")
+
+  sets SetLog[]
+
+  @@map("workout_sessions")
+}
+
+model SetLog {
+  id           String         @id @default(uuid())
+  sessionId    String         @map("session_id")
+  session      WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exerciseName String         @map("exercise_name")
+  setNumber    Int            @map("set_number")
+  weightKg     Decimal        @map("weight_kg")
+  reps         Int
+  note         String?
+  isPr         Boolean        @default(false) @map("is_pr")
+  loggedAt     DateTime       @default(now()) @map("logged_at")
+
+  @@index([exerciseName])
+  @@map("set_logs")
+}
+
+model CardioLog {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  durationMinutes Int      @default(15) @map("duration_minutes")
+  loggedAt        DateTime @default(now()) @map("logged_at")
+
+  @@map("cardio_logs")
+}
+
+model DietPlan {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dailyCalories Int      @map("daily_calories")
+  dailyProteinG Int      @map("daily_protein_g")
+  dailyCarbsG   Int      @map("daily_carbs_g")
+  dailyFatG     Int      @map("daily_fat_g")
+  dailyFiberG   Int      @map("daily_fiber_g")
+  activeFrom    DateTime @map("active_from")
+
+  @@map("diet_plans")
+}
+
+model FoodLog {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodName  String   @map("food_name")
+  quantityG Decimal  @map("quantity_g")
+  calories  Decimal
+  proteinG  Decimal  @map("protein_g")
+  carbsG    Decimal  @map("carbs_g")
+  fatG      Decimal  @map("fat_g")
+  fiberG    Decimal  @map("fiber_g")
+  source    String
+  loggedAt  DateTime @default(now()) @map("logged_at")
+
+  @@map("food_logs")
+}
+
+model CustomFood {
+  id              String  @id @default(uuid())
+  userId          String  @map("user_id")
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  caloriesPer100g Decimal @map("calories_per_100g")
+  proteinPer100g  Decimal @map("protein_per_100g")
+  carbsPer100g    Decimal @map("carbs_per_100g")
+  fatPer100g      Decimal @map("fat_per_100g")
+  fiberPer100g    Decimal @map("fiber_per_100g")
+
+  @@map("custom_foods")
+}
+
+model BodyWeightLog {
+  id       String   @id @default(uuid())
+  userId   String   @map("user_id")
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weightKg Decimal  @map("weight_kg")
+  loggedAt DateTime @map("logged_at") @db.Date
+
+  @@unique([userId, loggedAt])
+  @@map("body_weight_logs")
+}
+
+model BodyMeasurement {
+  id       String   @id @default(uuid())
+  userId   String   @map("user_id")
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chestCm  Decimal? @map("chest_cm")
+  waistCm  Decimal? @map("waist_cm")
+  armCm    Decimal? @map("arm_cm")
+  thighCm  Decimal? @map("thigh_cm")
+  loggedAt DateTime @map("logged_at") @db.Date
+
+  @@map("body_measurements")
+}

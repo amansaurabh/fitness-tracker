@@ -1,0 +1,90 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0b0e;
+  --surface: #14161c;
+  --surface-raised: #1b1e26;
+  --border: rgba(255, 255, 255, 0.08);
+  --lime: #cbff4d;
+  --violet: #7b6cff;
+  --coral: #ff6e52;
+  --text: #f3f4f0;
+  --text-dim: #8a8d98;
+  --text-dimmer: #565962;
+
+  --font-space: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --font-inter: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: radial-gradient(circle at 20% -10%, #1a1030 0%, var(--bg) 45%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-inter), sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Glow Utilities */
+.glow-lime {
+  box-shadow: 0 0 20px rgba(203, 255, 77, 0.4);
+}
+
+.glow-lime-subtle {
+  box-shadow: 0 0 24px rgba(203, 255, 77, 0.12);
+}
+
+.glow-violet {
+  box-shadow: 0 0 20px rgba(123, 108, 255, 0.35);
+}
+
+.glow-coral {
+  box-shadow: 0 0 20px rgba(255, 110, 82, 0.3);
+}
+
+/* Card Transitions */
+.card-hover {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+}
+
+/* Glassmorphism */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #232733;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #343a4d;
+}
