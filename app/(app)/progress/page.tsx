@@ -32,10 +32,12 @@ interface LiftPoint {
   maxWeight: number;
 }
 
+export const dynamic = "force-dynamic";
+
 export default function ProgressPage() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<"weight" | "lifts" | "measurements">("weight");
-  
+
   // Real database data
   const [weights, setWeights] = useState<WeightPoint[]>([]);
   const [measurements, setMeasurements] = useState<Measurement[]>([]);

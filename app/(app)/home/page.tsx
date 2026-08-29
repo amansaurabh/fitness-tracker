@@ -6,6 +6,8 @@ import { MacroRing } from "@/components/home/macro-ring";
 import { TodayWorkoutCard } from "@/components/home/today-workout-card";
 import { MiniStatCards } from "@/components/home/mini-stat-cards";
 
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   const [data, setData] = useState<{
     userName: string;

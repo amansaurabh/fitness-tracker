@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -127,8 +129,8 @@ export default function RegisterPage() {
                   s === step
                     ? "w-8 bg-lime shadow-glowLime"
                     : s < step
-                    ? "w-4 bg-lime/60"
-                    : "w-4 bg-white/10"
+                      ? "w-4 bg-lime/60"
+                      : "w-4 bg-white/10"
                 )}
               />
             ))}

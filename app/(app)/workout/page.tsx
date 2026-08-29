@@ -19,10 +19,12 @@ interface Schedule {
   exercises: Exercise[];
 }
 
+export const dynamic = "force-dynamic";
+
 export default function WorkoutOverviewPage() {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Create / Edit modal state
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingScheduleId, setEditingScheduleId] = useState<string | null>(null);
@@ -62,11 +64,11 @@ export default function WorkoutOverviewPage() {
     setExercisesList(
       sched.exercises.length > 0
         ? sched.exercises.map((e) => ({
-            exerciseName: e.exerciseName,
-            targetSets: e.targetSets,
-            targetReps: e.targetReps,
-            notes: e.notes,
-          }))
+          exerciseName: e.exerciseName,
+          targetSets: e.targetSets,
+          targetReps: e.targetReps,
+          notes: e.notes,
+        }))
         : [{ exerciseName: "", targetSets: 3, targetReps: "8-12" }]
     );
     setIsFormOpen(true);

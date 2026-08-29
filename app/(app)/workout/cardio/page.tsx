@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Flame, Play, Pause, RotateCcw, ArrowLeft, Check, Plus, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default function CardioPage() {
   const router = useRouter();
   const [targetMinutes, setTargetMinutes] = useState(15);

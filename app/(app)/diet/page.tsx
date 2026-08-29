@@ -51,6 +51,8 @@ interface DayHistoryItem {
   adherenceScore: number;
 }
 
+export const dynamic = "force-dynamic";
+
 export default function DietPage() {
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0]
