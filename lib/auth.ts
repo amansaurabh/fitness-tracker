@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || "development-secret-key-32chars-minimum-key",
   session: {
     strategy: "jwt",
   },

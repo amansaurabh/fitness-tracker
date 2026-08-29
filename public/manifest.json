@@ -1,6 +1,6 @@
 {
-  "name": "Forge — Fitness & Diet Tracker",
-  "short_name": "Forge",
+  "name": "FitTrack — Fitness & Diet Tracker",
+  "short_name": "FitTrack",
   "description": "Minimal-scope, high-performance workout and diet tracking PWA",
   "start_url": "/home",
   "display": "standalone",

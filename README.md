@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ FORGE
+# ⚡ FitTrack
 
 ### High-Performance Fitness & Diet Tracking Progressive Web App (PWA)
 
@@ -109,7 +109,7 @@ Create a `.env` file in the root directory:
 DATABASE_URL="postgresql://<user>:<password>@<host>/<database>?sslmode=require"
 
 # NextAuth Configuration
-NEXTAUTH_SECRET="forge-development-secret-key-32chars-minimum"
+NEXTAUTH_SECRET="development-secret-key-32chars-minimum-key"
 NEXTAUTH_URL="http://localhost:3000"
 
 # Optional USDA FoodData Central Key (uses built-in fallback dataset if omitted)
@@ -135,7 +135,7 @@ Open **`http://localhost:3000`** on your computer, or **`http://<your-local-ip>:
 
 ## 🌐 How to Deploy to Vercel (Production)
 
-Deploying Forge to Vercel takes less than 2 minutes:
+Deploying to Vercel takes less than 2 minutes:
 
 ### Step 1: Import Project into Vercel
 
@@ -165,7 +165,7 @@ In the **Environment Variables** section before clicking deploy, add the followi
 
 ---
 
-## 📲 Installing Forge as a Mobile PWA
+## 📲 Installing as a Mobile PWA
 
 ### iOS (iPhone Safari)
 

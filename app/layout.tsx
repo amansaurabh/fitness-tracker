@@ -2,13 +2,13 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Forge — Fitness & Diet Tracker",
-  description: "Minimal-scope, high-performance workout and diet tracking PWA",
+  title: "FitTrack — Fitness & Diet Tracker",
+  description: "High-performance fitness & diet tracking progressive web app",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Forge",
+    title: "FitTrack",
   },
 };
 

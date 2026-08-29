@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 import {
   Flame,
   ArrowRight,
@@ -94,6 +93,7 @@ export default function RegisterPage() {
       }
 
       // Auto sign-in
+      const { signIn } = await import("next-auth/react");
       const loginRes = await signIn("credentials", {
         email: email.trim().toLowerCase(),
         password,
@@ -415,7 +415,7 @@ export default function RegisterPage() {
                 className="flex-1 py-3 rounded-full bg-gradient-to-r from-lime to-[#9FE050] text-bg font-space font-bold text-sm shadow-glowLime hover:opacity-95 transition-all flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4 text-bg" />
-                <span>{loading ? "Generating Profile..." : "Launch Forge 🚀"}</span>
+                <span>{loading ? "Generating Profile..." : "Get Started 🚀"}</span>
               </button>
             </div>
           </form>

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Flame, ArrowRight, Lock, Mail } from "lucide-react";
@@ -10,8 +9,8 @@ export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("aman@forge.app");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,6 +20,7 @@ export default function LoginPage() {
     setError("");
 
     try {
+      const { signIn } = await import("next-auth/react");
       const res = await signIn("credentials", {
         email,
         password,
@@ -49,7 +49,7 @@ export default function LoginPage() {
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-lime to-[#9FE050] flex items-center justify-center shadow-glowLime mb-3">
             <Flame className="w-6 h-6 text-bg fill-bg" />
           </div>
-          <h1 className="font-space text-2xl font-bold text-text">Forge</h1>
+          <h1 className="font-space text-2xl font-bold text-text">FitTrack</h1>
           <p className="text-xs text-text-dim mt-1">Sign in to your fitness & diet tracker</p>
         </div>
 
@@ -67,6 +67,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 required
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-surface border border-border rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-text focus:outline-none focus:border-lime transition-colors"
@@ -81,6 +82,7 @@ export default function LoginPage() {
               <input
                 type="password"
                 required
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-surface border border-border rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-text focus:outline-none focus:border-lime transition-colors"
@@ -93,7 +95,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full py-3 rounded-full bg-lime text-bg font-space font-bold text-sm shadow-glowLime hover:opacity-95 active:scale-98 transition-all flex items-center justify-center gap-2 mt-4"
           >
-            <span>{loading ? "Signing in..." : "Enter Forge"}</span>
+            <span>{loading ? "Signing in..." : "Sign In"}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>

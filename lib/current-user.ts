@@ -17,15 +17,15 @@ export async function getCurrentUser() {
 
   // Single-user / local demo default user
   let defaultUser = await db.user.findFirst({
-    where: { email: "aman@forge.app" },
+    where: { email: "demo@fittrack.app" },
   });
 
   if (!defaultUser) {
     try {
       defaultUser = await db.user.create({
         data: {
-          email: "aman@forge.app",
-          name: "Aman",
+          email: "demo@fittrack.app",
+          name: "Athlete",
         },
       });
 
